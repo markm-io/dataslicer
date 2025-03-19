@@ -4,7 +4,7 @@ requires = [ "setuptools" ]
 
 [project]
 name = "data-slice"
-version = "0.1.2"
+version = "0.1.3"
 description = "DataSlicer is a powerful and lightweight Python tool designed to efficiently split large CSV and Excel (XLSX) files into smaller, more manageable chunks."
 readme = "README.md"
 license = { text = "MIT" }

@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.3 (2025-03-19)
+
+### Bug fixes
+
+- Update upload-artifact action to version 4 ([`66d595d`](https://github.com/markm-io/dataslicer/commit/66d595d63da034d8b32adb4134bfd484435db571))
+
 ## v0.1.2 (2025-03-19)
 
 ### Bug fixes
