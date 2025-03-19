@@ -42,8 +42,8 @@ jobs:
           - "3.13"
         os:
           - ubuntu-latest
-          - windows-latest
-          - macOS-latest
+    #          - windows-latest
+    #          - macOS-latest
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
@@ -139,15 +139,14 @@ jobs:
 
       - name: Build Executable
         run: |
+          pip install .
+          pyinstaller dataslicer.spec
           if [ "$RUNNER_OS" == "Windows" ]; then
-            pyinstaller --onefile --windowed --icon=assets/icon.ico src/dataslicer/main.py
-            mv dist/main.exe dist/dataslicer-windows-${{ needs.release.outputs.tag }}.exe
+            mv dist/dataslicer.exe dist/dataslicer-windows-${{ needs.release.outputs.tag }}.exe
           elif [ "$RUNNER_OS" == "Linux" ]; then
-            pyinstaller --onefile src/dataslicer/main.py
-            mv dist/main dist/dataslicer-linux-${{ needs.release.outputs.tag }}
+            mv dist/dataslicer dist/dataslicer-linux-${{ needs.release.outputs.tag }}
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            pyinstaller --onefile --windowed --icon=assets/icon.icns src/dataslicer/main.py
-            mv dist/main dist/dataslicer-macos-${{ needs.release.outputs.tag }}
+            mv dist/dataslicer dist/dataslicer-macos-${{ needs.release.outputs.tag }}
           fi
         shell: bash
 
