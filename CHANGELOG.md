@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.6 (2025-03-19)
+
+### Bug fixes
+
+- Refactor ci configuration to create a flat directory for executables and improve file verification ([`556001d`](https://github.com/markm-io/dataslicer/commit/556001d8042606d760524805dd1bd2bef47cf843))
+
 ## v0.2.5 (2025-03-19)
 
 ### Bug fixes
