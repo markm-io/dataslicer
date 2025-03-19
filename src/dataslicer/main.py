@@ -3,6 +3,11 @@ import re
 from typing import Any, Union
 
 import pandas as pd
+from rich.console import Console
+from rich.prompt import Prompt
+from rich.table import Table
+
+console = Console()
 
 
 def sanitize_filename(filename: str) -> str:
@@ -16,11 +21,11 @@ def sanitize_filename(filename: str) -> str:
 def get_file_path() -> str:
     """Ask the user for the file path until a valid file is provided."""
     while True:
-        file_path: str = input("Enter the path to your Excel or CSV file: ").strip()
+        file_path: str = Prompt.ask("[bold cyan]Enter the path to your Excel or CSV file[/]").strip()
         if os.path.isfile(file_path):
             return file_path
         else:
-            print("File does not exist. Please try again.")
+            console.print("[bold red]File does not exist. Please try again.[/]")
 
 
 def read_file(file_path: str) -> pd.DataFrame:
@@ -31,7 +36,7 @@ def read_file(file_path: str) -> pd.DataFrame:
     elif ext.lower() in [".xls", ".xlsx"]:
         df = pd.read_excel(file_path, sheet_name=0)
     else:
-        raise ValueError("Unsupported file type. Please provide a CSV or Excel file.")
+        raise ValueError("[bold red]Unsupported file type. Please provide a CSV or Excel file.[/]")
     return df
 
 
@@ -41,25 +46,35 @@ def choose_columns(columns: list[str]) -> list[str]:
     The selection order will determine the folder hierarchy.
     """
     selected_columns: list[str] = []
-    available: list[str] = list(columns)  # copy of the list to show available columns
+    available: list[str] = list(columns)  # Copy of the list to show available columns
 
     while True:
-        choice: str = input("Select a column by number (or press Enter to finish): ").strip()
+        table = Table(title="Available columns to split by (order matters)", show_lines=True)
+        table.add_column("#", justify="right", style="bold")
+        table.add_column("Column Name", style="cyan")
+
+        for i, col in enumerate(available, start=1):
+            table.add_row(str(i), col)
+
+        console.print(table)
+        choice: str = Prompt.ask("[bold yellow]Select a column by number (or press Enter to finish)[/]").strip()
+
         if choice == "":
-            if len(selected_columns) == 0:
-                print("You must select at least one column.")
+            if not selected_columns:
+                console.print("[bold red]You must select at least one column.[/]")
                 continue
             else:
                 break
         try:
             num: int = int(choice)
             if num < 1 or num > len(available):
-                print("Invalid selection. Try again.")
+                console.print("[bold red]Invalid selection. Try again.[/]")
                 continue
             selected_col: str = available.pop(num - 1)
             selected_columns.append(selected_col)
         except ValueError:
-            print("Invalid input. Please enter a valid number.")
+            console.print("[bold red]Invalid input. Please enter a valid number.[/]")
+
     return selected_columns
 
 
@@ -69,18 +84,18 @@ def get_export_folder() -> str:
     If the folder doesn't exist, try to create it.
     """
     while True:
-        folder: str = input("Enter the path to the export folder: ").strip()
+        folder: str = Prompt.ask("[bold cyan]Enter the path to the export folder[/]").strip()
         if folder:
             if not os.path.exists(folder):
                 try:
                     os.makedirs(folder)
-                    print(f"Folder '{folder}' created.")
+                    console.print(f"[bold green]Folder '{folder}' created.[/]")
                 except Exception as e:
-                    print(f"Could not create folder: {e}")
+                    console.print(f"[bold red]Could not create folder: {e}[/]")
                     continue
             return folder
         else:
-            print("You must enter a valid folder path.")
+            console.print("[bold red]You must enter a valid folder path.[/]")
 
 
 def choose_export_format() -> str:
@@ -89,17 +104,18 @@ def choose_export_format() -> str:
     1. Excel
     2. CSV
     """
+    console.print("\n[bold yellow]Choose export format:[/]")
+    console.print("[bold]1.[/] Excel")
+    console.print("[bold]2.[/] CSV")
+
     while True:
-        print("Choose export format:")
-        print("1. Excel")
-        print("2. CSV")
-        choice: str = input("Enter the number of the export format: ").strip()
+        choice: str = Prompt.ask("[bold cyan]Enter the number of the export format[/]").strip()
         if choice == "1":
             return "excel"
         elif choice == "2":
             return "csv"
         else:
-            print("Invalid selection. Please enter 1 or 2.")
+            console.print("[bold red]Invalid selection. Please enter 1 or 2.[/]")
 
 
 def save_group(
@@ -123,17 +139,11 @@ def save_group(
         subfolder_path = os.path.join(subfolder_path, str(key))
     os.makedirs(subfolder_path, exist_ok=True)
 
-    # Ensure group_keys is a tuple for consistency
-    if not isinstance(group_keys, tuple):
-        group_keys = (group_keys,)
-
     # Build the filename from only the group key values in reverse order.
-    filename_parts: list[str] = []
-    for val in reversed(group_keys):
-        filename_parts.append(str(val))
+    filename_parts: list[str] = [str(val) for val in reversed(group_keys)]
     raw_filename: str = " - ".join(filename_parts)
 
-    # Sanitize the filename to remove illegal characters.
+    # Sanitize the filename
     sanitized_filename: str = sanitize_filename(raw_filename)
 
     # Append the file extension
@@ -146,34 +156,43 @@ def save_group(
         df.to_excel(file_path, index=False)
     else:
         df.to_csv(file_path, index=False)
-    print(f"Saved group {group_keys} to {file_path}")
+
+    console.print(f"[bold green]Saved group {group_keys} to {file_path}[/]")
 
 
 def main() -> None:
+    console.print("[bold cyan]Welcome to the File Splitter![/]")
+
     # Get the input file and load it into a DataFrame
     file_path: str = get_file_path()
     df: pd.DataFrame = read_file(file_path)
 
     # Display the available columns
-    print("\nColumns in the file:")
+    console.print("\n[bold cyan]Columns in the file:[/]")
+    table = Table(title="Available Columns", show_lines=True)
+    table.add_column("#", justify="right", style="bold")
+    table.add_column("Column Name", style="cyan")
+
     for i, col in enumerate(df.columns, start=1):
-        print(f"{i}. {col}")
+        table.add_row(str(i), col)
+
+    console.print(table)
 
     # Let the user choose the columns (in order) for splitting
     split_columns: list[str] = choose_columns(df.columns.tolist())
-    print("\nSelected columns (in order):", split_columns)
+    console.print("\n[bold yellow]Selected columns (in order):[/]", split_columns)
 
     # Ask for export folder and export format
     export_folder: str = get_export_folder()
     export_format: str = choose_export_format()
 
-    # Group the DataFrame by the selected columns and export each group to its respective folder
+    # Group the DataFrame by the selected columns and export each group
     grouped = df.groupby(split_columns)
-    print("\nSplitting file and exporting groups...")
+    console.print("\n[bold cyan]Splitting file and exporting groups...[/]")
     for group_keys, group_df in grouped:
         save_group(group_df, group_keys, split_columns, export_folder, export_format)
 
-    print("All groups exported.")
+    console.print("[bold green]All groups exported successfully![/]")
 
 
 if __name__ == "__main__":

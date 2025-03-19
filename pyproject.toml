@@ -28,6 +28,7 @@ classifiers = [
 dependencies = [
     "openpyxl>=3.1.5",
     "pandas>=2.2.3",
+    "rich>=13.9.4",
 ]
 urls."Bug Tracker" = "https://github.com/markm-io/dataslicer/issues"
 urls.Changelog = "https://github.com/markm-io/dataslicer/blob/main/CHANGELOG.md"
