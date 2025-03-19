@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.10 (2025-03-19)
+
+### Bug fixes
+
+- Update codespell configuration and add dataslicer.spec for packaging ([`a6aaa8c`](https://github.com/markm-io/dataslicer/commit/a6aaa8cf3b032b8081671d9136f0f2bf67c984ac))
+
 ## v0.2.9 (2025-03-19)
 
 ### Bug fixes
