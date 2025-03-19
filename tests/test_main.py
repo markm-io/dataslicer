@@ -6,6 +6,7 @@ import pytest
 from dataslicer.main import (
     choose_columns,
     choose_export_format,
+    choose_filename_column,
     get_export_folder,
     get_file_path,
     read_file,
@@ -66,6 +67,14 @@ def test_get_export_folder(monkeypatch, tmp_path):
     assert get_export_folder() == temp_folder
 
 
+def test_choose_filename_column(monkeypatch):
+    """Test filename column selection function."""
+    monkeypatch.setattr("builtins.input", lambda *args: "2")  # Select column 2
+
+    filename_column = choose_filename_column(["Name", "Department", "Salary"])
+    assert filename_column == "Department"
+
+
 def test_choose_export_format(monkeypatch):
     """Test export format selection."""
     monkeypatch.setattr("builtins.input", lambda *args: "1")  # User selects Excel
@@ -84,6 +93,7 @@ def test_save_group(tmp_path):
         df=TEST_DF,
         group_keys=("HR",),
         selected_columns=["Department"],
+        filename_column="Department",
         export_folder=str(export_folder),
         export_format="csv",
     )
@@ -109,6 +119,7 @@ def test_grouping_and_saving(mock_grouped_data, tmp_path):
             df=group_df,
             group_keys=group_keys,
             selected_columns=["Department"],
+            filename_column="Department",
             export_folder=str(export_folder),
             export_format="csv",
         )

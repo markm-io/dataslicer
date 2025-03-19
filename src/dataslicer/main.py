@@ -70,6 +70,31 @@ def choose_columns(columns: list[str]) -> list[str]:
     return selected_columns
 
 
+def choose_filename_column(columns: list[str]) -> str:
+    """
+    Let the user select a column to use for the filename.
+    """
+    table = Table(title="Available columns for filename", show_lines=True)
+    table.add_column("#", justify="right", style="bold")
+    table.add_column("Column Name", style="cyan")
+
+    for i, col in enumerate(columns, start=1):
+        table.add_row(str(i), col)
+
+    console.print(table)
+
+    while True:
+        choice: str = Prompt.ask("[bold yellow]Select a column for the filename by number[/]").strip()
+        try:
+            num: int = int(choice)
+            if num < 1 or num > len(columns):
+                console.print("[bold red]Invalid selection. Try again.[/]")
+                continue
+            return columns[num - 1]
+        except ValueError:
+            console.print("[bold red]Invalid input. Please enter a valid number.[/]")
+
+
 def get_export_folder() -> str:
     """
     Keep asking for an export folder until a valid path is provided.
@@ -114,33 +139,36 @@ def save_group(
     df: pd.DataFrame,
     group_keys: Union[Any, tuple[Any, ...]],
     selected_columns: list[str],
+    filename_column: str,
     export_folder: str,
     export_format: str,
 ) -> None:
     """
     Create the nested folder structure based on group_keys and save the subset file.
-    The output filename is built from the group key values (in reverse order)
-    joined by " - ". For example, if group_keys is (test_value, building_value),
-    the filename will be "building_value - test_value" (plus the file extension).
+    The output filename is based on the value of the filename_column for this group.
     """
     subfolder_path: str = export_folder
     # Build the folder structure in the order of grouping (not reversed)
     if not isinstance(group_keys, tuple):
         group_keys = (group_keys,)
     for key in group_keys:
-        subfolder_path = sanitize_filepath(os.path.join(subfolder_path, sanitize_filename(key)))
+        subfolder_path = sanitize_filepath(os.path.join(subfolder_path, sanitize_filename(str(key))))
     os.makedirs(subfolder_path, exist_ok=True)
 
-    # Build the filename from only the group key values in reverse order.
-    filename_parts: list[str] = [str(val) for val in reversed(group_keys)]
-    raw_filename: str = " - ".join(filename_parts)
-
-    # Sanitize the filename
-    sanitized_filename: str = sanitize_filename(raw_filename)
+    # Use the filename column value if it exists in the dataframe
+    if filename_column in df.columns:
+        # Use the first value in the group for the filename column
+        filename_value = str(df[filename_column].iloc[0])
+        raw_filename = sanitize_filename(filename_value)
+    else:
+        # Fallback to the old behavior if the filename column doesn't exist
+        filename_parts: list[str] = [str(val) for val in reversed(group_keys)]
+        raw_filename = " - ".join(filename_parts)
+        raw_filename = sanitize_filename(raw_filename)
 
     # Append the file extension
     file_extension: str = ".xlsx" if export_format == "excel" else ".csv"
-    file_name: str = sanitized_filename + file_extension
+    file_name: str = raw_filename + file_extension
     file_path: str = os.path.join(subfolder_path, file_name)
 
     # Save the file in the chosen format
@@ -174,6 +202,10 @@ def main() -> None:
     split_columns: list[str] = choose_columns(df.columns.tolist())
     console.print("\n[bold yellow]Selected columns (in order):[/]", split_columns)
 
+    # Let the user choose a column for the filename
+    filename_column: str = choose_filename_column(df.columns.tolist())
+    console.print(f"\n[bold yellow]Column selected for filename:[/] {filename_column}")
+
     # Ask for export folder and export format
     export_folder: str = get_export_folder()
     export_format: str = choose_export_format()
@@ -182,7 +214,7 @@ def main() -> None:
     grouped = df.groupby(split_columns)
     console.print("\n[bold cyan]Splitting file and exporting groups...[/]")
     for group_keys, group_df in grouped:
-        save_group(group_df, group_keys, split_columns, export_folder, export_format)
+        save_group(group_df, group_keys, split_columns, filename_column, export_folder, export_format)
 
     console.print("[bold green]All groups exported successfully![/]")
 
