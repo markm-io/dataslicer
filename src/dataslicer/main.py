@@ -128,7 +128,7 @@ def save_group(
     if not isinstance(group_keys, tuple):
         group_keys = (group_keys,)
     for key in group_keys:
-        subfolder_path = sanitize_filepath(os.path.join(subfolder_path, str(key)))
+        subfolder_path = sanitize_filepath(os.path.join(subfolder_path, sanitize_filename(key)))
     os.makedirs(subfolder_path, exist_ok=True)
 
     # Build the filename from only the group key values in reverse order.
