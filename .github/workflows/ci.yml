@@ -155,7 +155,9 @@ jobs:
           path: dist/
 
   upload_executables:
-    needs: build_executables
+    needs:
+      - build_executables
+      - release
     if: needs.release.outputs.released == 'true'
     runs-on: self-hosted
     steps:
