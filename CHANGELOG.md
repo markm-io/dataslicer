@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.7 (2025-03-19)
+
+### Bug fixes
+
+- Update ci configuration to remove unused os options and streamline executable naming ([`187dca2`](https://github.com/markm-io/dataslicer/commit/187dca2a35a728612bb6ecc99f0cb2687fc7a72d))
+
 ## v0.2.6 (2025-03-19)
 
 ### Bug fixes
