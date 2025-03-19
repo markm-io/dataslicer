@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.5 (2025-03-19)
+
+### Bug fixes
+
+- Update ci configuration to use matrix strategy for os selection ([`0df190e`](https://github.com/markm-io/dataslicer/commit/0df190e030e7ad10042e9c740b027cd15bcc60f0))
+
 ## v0.2.4 (2025-03-19)
 
 ### Bug fixes
