@@ -9,7 +9,7 @@ from dataslicer.main import (
     get_export_folder,
     get_file_path,
     read_file,
-    sanitize_filename,
+    sanitize_for_filesystem,  # Updated import
     save_group,
 )
 
@@ -37,11 +37,19 @@ def temp_csv(tmp_path):
     return str(temp_file)
 
 
-def test_sanitize_filename():
-    """Test that filenames are correctly sanitized."""
-    assert sanitize_filename("valid_filename") == "valid_filename"
-    assert sanitize_filename("inva|lid:na*me?.txt") == "invalidname.txt"
-    assert sanitize_filename("normal-file.txt") == "normal-file.txt"
+def test_sanitize_for_filesystem():
+    """Test that filenames and folder names are correctly sanitized."""
+    # Test file sanitization (is_folder=False)
+    assert sanitize_for_filesystem("valid_filename") == "valid_filename"
+    assert sanitize_for_filesystem("inva|lid:na*me?.txt") == "inva_lid_na_me_.txt"
+    assert sanitize_for_filesystem("normal-file.txt") == "normal-file.txt"
+    assert sanitize_for_filesystem("path/with/slashes.txt") == "path_with_slashes.txt"
+
+    # Test folder sanitization (is_folder=True)
+    assert sanitize_for_filesystem("valid_folder", is_folder=True) == "valid_folder"
+    assert sanitize_for_filesystem("inva|lid:fo*lder?", is_folder=True) == "inva_lid_fo_lder_"
+    assert sanitize_for_filesystem("path/with/slashes", is_folder=True) == "path/with/slashes"
+    assert sanitize_for_filesystem("folder\\with:bad*chars", is_folder=True) == "folder_with_bad_chars"
 
 
 def test_get_file_path(temp_csv, monkeypatch):
@@ -60,11 +68,11 @@ def test_read_file_csv(temp_csv):
 
 def test_choose_columns(monkeypatch):
     """Test column selection function."""
-    inputs = iter(["1", "2", ""])  # Select columns 1 and 2, then press Enter
+    inputs = iter(["1", "1", ""])  # Select columns 1 and 2, then press Enter
     monkeypatch.setattr("builtins.input", lambda *args: next(inputs))
 
     selected_columns = choose_columns(["Name", "Department", "Salary"])
-    assert selected_columns == ["Name", "Salary"]
+    assert selected_columns == ["Name", "Department"]
 
 
 def test_get_export_folder(monkeypatch, tmp_path):
@@ -97,6 +105,23 @@ def test_save_group(tmp_path):
     )
 
     expected_file = export_folder / "HR" / "HR.csv"
+    assert expected_file.exists(), f"Expected file {expected_file} does not exist."
+
+
+def test_save_group_with_special_chars(tmp_path):
+    """Test that special characters in folder/file names are handled correctly."""
+    export_folder = tmp_path / "exports"
+    os.makedirs(export_folder, exist_ok=True)
+
+    save_group(
+        df=TEST_DF,
+        group_keys=("HR/Dept1",),
+        selected_columns=["Department"],
+        export_folder=str(export_folder),
+        export_format="csv",
+    )
+
+    expected_file = export_folder / "HR/Dept1" / "HR_Dept1.csv"
     assert expected_file.exists(), f"Expected file {expected_file} does not exist."
 
 

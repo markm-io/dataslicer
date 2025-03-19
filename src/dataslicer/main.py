@@ -10,12 +10,21 @@ from rich.table import Table
 console = Console()
 
 
-def sanitize_filename(filename: str) -> str:
-    r"""
-    Remove characters that are illegal in filenames on Windows, Mac, and Linux.
-    Illegal characters include: \ / : * ? " < > |
+def sanitize_for_filesystem(name: str, is_folder: bool = False) -> str:
     """
-    return re.sub(r'[\\/*?:"<>|]', "", filename)
+    Remove characters that are illegal in filenames/foldernames on Windows, Mac, and Linux.
+
+    For files: Replace / : * ? " < > | with empty string
+    For folders: Replace : * ? " < > | with underscore, but keep / for subfolders
+    """
+    if is_folder:
+        # For folders, replace with underscores but preserve / for nested folders
+        sanitized = re.sub(r'[\\:*?"<>|]', "_", name)
+        # Handle forward slashes specially - convert to subfolder structure
+        return sanitized
+    else:
+        # For files, remove all problematic characters
+        return re.sub(r'[\\/*?:"<>|]', "_", name)
 
 
 def get_file_path() -> str:
@@ -135,16 +144,20 @@ def save_group(
     # Build the folder structure in the order of grouping (not reversed)
     if not isinstance(group_keys, tuple):
         group_keys = (group_keys,)
+
     for key in group_keys:
-        subfolder_path = os.path.join(subfolder_path, str(key))
+        # First sanitize the folder name, replacing invalid chars with underscores
+        folder_name = sanitize_for_filesystem(str(key), is_folder=True)
+        subfolder_path = os.path.join(subfolder_path, folder_name)
+
     os.makedirs(subfolder_path, exist_ok=True)
 
     # Build the filename from only the group key values in reverse order.
     filename_parts: list[str] = [str(val) for val in reversed(group_keys)]
     raw_filename: str = " - ".join(filename_parts)
 
-    # Sanitize the filename
-    sanitized_filename: str = sanitize_filename(raw_filename)
+    # Sanitize the filename, replacing invalid chars with underscores
+    sanitized_filename: str = sanitize_for_filesystem(raw_filename, is_folder=False)
 
     # Append the file extension
     file_extension: str = ".xlsx" if export_format == "excel" else ".csv"
