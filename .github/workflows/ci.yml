@@ -141,13 +141,44 @@ jobs:
         run: |
           pip install .
           pyinstaller dataslicer.spec
+
+          # List files to debug
+          echo "Contents of dist directory:"
+          ls -la dist/
+
+          # Find and rename the executable based on OS
           if [ "$RUNNER_OS" == "Windows" ]; then
-            mv dist/dataslicer.exe dist/dataslicer-windows-${{ needs.release.outputs.tag }}.exe
+            # Find the .exe file in dist
+            EXE_FILE=$(find dist -name "*.exe" | head -n 1)
+            if [ -n "$EXE_FILE" ]; then
+              mv "$EXE_FILE" dist/dataslicer-windows-${{ needs.release.outputs.tag }}.exe
+            else
+              echo "Error: Windows executable not found in dist directory"
+              exit 1
+            fi
           elif [ "$RUNNER_OS" == "Linux" ]; then
-            mv dist/dataslicer dist/dataslicer-linux-${{ needs.release.outputs.tag }}
+            # Find the Linux executable (no extension)
+            EXE_FILE=$(find dist -type f -executable -not -name "*.so" -not -name "*.dll" | head -n 1)
+            if [ -n "$EXE_FILE" ]; then
+              mv "$EXE_FILE" dist/dataslicer-linux-${{ needs.release.outputs.tag }}
+            else
+              echo "Error: Linux executable not found in dist directory"
+              exit 1
+            fi
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            mv dist/dataslicer dist/dataslicer-macos-${{ needs.release.outputs.tag }}
+            # Find the macOS executable (no extension)
+            EXE_FILE=$(find dist -type f -perm +111 -not -name "*.so" -not -name "*.dylib" | head -n 1)
+            if [ -n "$EXE_FILE" ]; then
+              mv "$EXE_FILE" dist/dataslicer-macos-${{ needs.release.outputs.tag }}
+            else
+              echo "Error: macOS executable not found in dist directory"
+              exit 1
+            fi
           fi
+
+          # Show final contents
+          echo "Final contents of dist directory:"
+          ls -la dist/
         shell: bash
 
       - name: Upload Executable
