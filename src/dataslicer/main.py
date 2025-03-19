@@ -44,9 +44,6 @@ def choose_columns(columns: list[str]) -> list[str]:
     available: list[str] = list(columns)  # copy of the list to show available columns
 
     while True:
-        print("\nAvailable columns to split by (order matters):")
-        for i, col in enumerate(available, start=1):
-            print(f"{i}. {col}")
         choice: str = input("Select a column by number (or press Enter to finish): ").strip()
         if choice == "":
             if len(selected_columns) == 0:
