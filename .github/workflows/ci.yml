@@ -174,21 +174,21 @@ jobs:
       - name: List Downloaded Files
         run: ls -R executables
 
-      - name: Move Executables to Root
-        run: |
-          mv executables/dataslicer-windows-latest-v0.2.3/* executables/ 2>/dev/null || true
-          mv executables/dataslicer-ubuntu-latest-v0.2.3/* executables/ 2>/dev/null || true
-          mv executables/dataslicer-macos-latest-v0.2.3/* executables/ 2>/dev/null || true
+      - name: Create flat directory
+        run: mkdir -p flat
 
-      - name: Verify Final File Structure
-        run: ls -R executables
+      - name: Copy executables to flat directory
+        run: |
+          find executables -type f -name "dataslicer-windows-*.exe" -exec cp {} flat/ \;
+          find executables -type f -name "dataslicer-linux-*" ! -path "*/main.app/*" -exec cp {} flat/ \;
+          find executables -type f -name "dataslicer-macos-*" ! -path "*/main.app/*" -exec cp {} flat/ \;
+
+      - name: Verify Files in Flat Directory
+        run: ls -la flat/
 
       - name: Upload executables to GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.release.outputs.tag }}
-          files: |
-            executables/dataslicer-windows-*.exe
-            executables/dataslicer-linux-*
-            executables/dataslicer-macos-*
+          files: flat/*
           token: ${{ secrets.GITHUB_TOKEN }}
