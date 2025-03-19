@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.2 (2025-03-19)
+
+### Bug fixes
+
+- Remove column selection printout from user prompt ([`2ace1c6`](https://github.com/markm-io/dataslicer/commit/2ace1c638aa20ad3f534b585725aab72958ef5b4))
+
 ## v0.1.1 (2025-03-19)
 
 ## v0.1.0 (2025-03-19)
