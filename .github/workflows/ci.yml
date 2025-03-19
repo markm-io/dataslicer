@@ -76,6 +76,7 @@ jobs:
 
     outputs:
       released: ${{ steps.release.outputs.released }}
+      tag: ${{ steps.release.outputs.tag }}
 
     steps:
       - uses: actions/checkout@v4
@@ -131,7 +132,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13" # or your desired version
+          python-version: "3.13"
 
       - name: Install PyInstaller
         run: pip install pyinstaller
@@ -144,3 +145,20 @@ jobs:
         with:
           name: executable-${{ matrix.os }}
           path: dist/
+
+  upload_executables:
+    needs: build_executables
+    if: needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all executables
+        uses: actions/download-artifact@v4
+        with:
+          path: executables
+
+      - name: Upload executables to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release.outputs.tag }}
+          files: executables/**/*
+          token: ${{ secrets.GITHUB_TOKEN }}
