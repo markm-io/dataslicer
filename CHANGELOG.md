@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.3 (2025-03-19)
+
+### Bug fixes
+
+- Update executable naming and upload process in ci configuration ([`70edeef`](https://github.com/markm-io/dataslicer/commit/70edeef6034d98f0dea4c82ed4ff06f1e5f2d4fa))
+
 ## v0.2.2 (2025-03-19)
 
 ### Bug fixes
