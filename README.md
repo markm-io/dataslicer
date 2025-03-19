@@ -44,7 +44,7 @@ DataSlicer is a powerful and lightweight Python tool designed to efficiently spl
 
 Install this via pip (or your favourite package manager):
 
-`pip install dataslicer`
+`pip install data-slice`
 
 ## Contributors ✨
 
