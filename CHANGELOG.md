@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.12 (2025-03-19)
+
+### Bug fixes
+
+- Improve filename and folder sanitization logic in filesystem handling ([`e5a2fd9`](https://github.com/markm-io/dataslicer/commit/e5a2fd922a2441a54bfe500abcf5c2b947dc9d55))
+
 ## v0.2.11 (2025-03-19)
 
 ### Bug fixes
