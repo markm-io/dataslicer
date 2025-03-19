@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.14 (2025-03-19)
+
+### Bug fixes
+
+- Update indentation size to 4 and improve filename sanitization in main.py ([`a8c2bf8`](https://github.com/markm-io/dataslicer/commit/a8c2bf896040cd61b849a219d6cd60bc82aeb20d))
+
 ## v0.2.13 (2025-03-19)
 
 ### Bug fixes
