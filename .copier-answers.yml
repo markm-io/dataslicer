@@ -1,6 +1,6 @@
 # Changes here will be overwritten by Copier
 _commit: '4089880'
-_src_path: gh:markm-io/pypackage-template
+_src_path: git+https://github.com/markm-io/pypackage-template.git
 add_me_as_contributor: true
 copyright_year: '2025'
 documentation: true

@@ -140,19 +140,22 @@ jobs:
       - name: Build Executable
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
-            pyinstaller --onefile --windowed --icon=assets/icon.ico --noconsole src/dataslicer/main.py
+            pyinstaller --onefile --windowed --icon=assets/icon.ico src/dataslicer/main.py
+            mv dist/main.exe dist/dataslicer-windows-${{ needs.release.outputs.tag }}.exe
           elif [ "$RUNNER_OS" == "Linux" ]; then
-            pyinstaller --onefile --icon=assets/icon.png src/dataslicer/main.py
+            pyinstaller --onefile src/dataslicer/main.py
+            mv dist/main dist/dataslicer-linux-${{ needs.release.outputs.tag }}
           elif [ "$RUNNER_OS" == "macOS" ]; then
             pyinstaller --onefile --windowed --icon=assets/icon.icns src/dataslicer/main.py
+            mv dist/main dist/dataslicer-macos-${{ needs.release.outputs.tag }}
           fi
         shell: bash
 
       - name: Upload Executable
         uses: actions/upload-artifact@v4
         with:
-          name: executable-${{ matrix.os }}
-          path: dist/
+          name: dataslicer-${{ matrix.os }}-${{ needs.release.outputs.tag }}
+          path: dist/*
 
   upload_executables:
     needs:
@@ -168,9 +171,15 @@ jobs:
         with:
           path: executables
 
+      - name: Verify Files Before Upload
+        run: ls -R executables
+
       - name: Upload executables to GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.release.outputs.tag }}
-          files: executables/**/*
+          files: |
+            executables/dataslicer-windows-${{ needs.release.outputs.tag }}.exe
+            executables/dataslicer-linux-${{ needs.release.outputs.tag }}
+            executables/dataslicer-macos-${{ needs.release.outputs.tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
