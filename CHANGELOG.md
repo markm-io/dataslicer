@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.4 (2025-03-19)
+
+### Bug fixes
+
+- Enhance ci configuration to list files, move executables, and verify final structure before upload ([`e8f76ae`](https://github.com/markm-io/dataslicer/commit/e8f76ae17d61e6871a3a87f5a30e1d4f9eaf2b6f))
+
 ## v0.2.3 (2025-03-19)
 
 ### Bug fixes
