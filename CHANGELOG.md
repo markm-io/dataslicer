@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.0 (2025-03-19)
+
+### Features
+
+- Add filename column selection and update export logic in main.py ([`2d709db`](https://github.com/markm-io/dataslicer/commit/2d709dbe947f37701cb808749947e61c2e4031fd))
+
 ## v0.2.14 (2025-03-19)
 
 ### Bug fixes
