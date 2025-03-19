@@ -74,6 +74,9 @@ jobs:
       attestations: write
       contents: write
 
+    outputs:
+      released: ${{ steps.release.outputs.released }}
+
     steps:
       - uses: actions/checkout@v4
         with:
