@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.0 (2025-03-19)
+
+### Features
+
+- Enhance user interaction with rich console prompts and messages ([`54c7fd0`](https://github.com/markm-io/dataslicer/commit/54c7fd05c70008e128f3803713eaaa5004eea3c4))
+
 ## v0.1.3 (2025-03-19)
 
 ### Bug fixes
