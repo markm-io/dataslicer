@@ -1,9 +1,16 @@
 # Changelog
 
+## v0.2.11 (2025-03-19)
+
+### Bug fixes
+
+- Bump version to 0.2.10 and update changelog ([`e1efca3`](https://github.com/markm-io/dataslicer/commit/e1efca382072fbbea0a2908ec1b9b5c3ecba4b4b))
+
 ## v0.2.10 (2025-03-19)
 
 ### Bug fixes
 
+- Add platform-specific icon handling in dataslicer.spec ([`257344c`](https://github.com/markm-io/dataslicer/commit/257344c5f51e6c6e3ae997b39c3cc173258baa9c))
 - Update codespell configuration and add dataslicer.spec for packaging ([`a6aaa8c`](https://github.com/markm-io/dataslicer/commit/a6aaa8cf3b032b8081671d9136f0f2bf67c984ac))
 
 ## v0.2.9 (2025-03-19)
