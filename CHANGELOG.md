@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.13 (2025-03-19)
+
+### Bug fixes
+
+- Replace custom filesystem sanitization with pathvalidate library functions ([`04486ef`](https://github.com/markm-io/dataslicer/commit/04486ef7eedcb97b4358d138ae01e570a2c80c9c))
+
 ## v0.2.12 (2025-03-19)
 
 ### Bug fixes
