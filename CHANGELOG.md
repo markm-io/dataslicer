@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.9 (2025-03-19)
+
+### Bug fixes
+
+- Enhance ci configuration to dynamically find and rename executables based on os ([`e6b26be`](https://github.com/markm-io/dataslicer/commit/e6b26be7af51f48fb7a19d5be13bb5d3f4a5b60f))
+
 ## v0.2.8 (2025-03-19)
 
 ### Bug fixes
