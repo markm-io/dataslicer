@@ -160,6 +160,8 @@ jobs:
       - release
     if: needs.release.outputs.released == 'true'
     runs-on: self-hosted
+    permissions:
+      contents: write
     steps:
       - name: Download all executables
         uses: actions/download-artifact@v4

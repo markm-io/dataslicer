@@ -23,11 +23,11 @@
   </a>
 </p>
 <p align="center">
-  <a href="https://pypi.org/project/dataslicer/">
-    <img src="https://img.shields.io/pypi/v/dataslicer.svg?logo=python&logoColor=fff&style=flat-square" alt="PyPI Version">
+  <a href="https://pypi.org/project/data-slice/">
+    <img src="https://img.shields.io/pypi/v/data-slice.svg?logo=python&logoColor=fff&style=flat-square" alt="PyPI Version">
   </a>
-  <img src="https://img.shields.io/pypi/pyversions/dataslicer.svg?style=flat-square&logo=python&amp;logoColor=fff" alt="Supported Python versions">
-  <img src="https://img.shields.io/pypi/l/dataslicer.svg?style=flat-square" alt="License">
+  <img src="https://img.shields.io/pypi/pyversions/data-slice.svg?style=flat-square&logo=python&amp;logoColor=fff" alt="Supported Python versions">
+  <img src="https://img.shields.io/pypi/l/data-slice.svg?style=flat-square" alt="License">
 </p>
 
 ---
