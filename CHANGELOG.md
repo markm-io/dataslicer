@@ -1,6 +1,12 @@
 # Changelog
 
+## v0.1.1 (2025-03-19)
+
 ## v0.1.0 (2025-03-19)
+
+### Bug fixes
+
+- Rename project from 'dataslicer' to 'data-slice' and update python requirement ([`6f95935`](https://github.com/markm-io/dataslicer/commit/6f959358450b835d5e217967377b68ccae9c0f5a))
 
 ### Features
 
