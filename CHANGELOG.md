@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.2 (2025-03-19)
+
+### Bug fixes
+
+- Update package name in installation instructions and readme, add permissions to ci job ([`716af41`](https://github.com/markm-io/dataslicer/commit/716af415f148ea90e4c489ca672440bfd8ad5c87))
+
 ## v0.2.1 (2025-03-19)
 
 ### Bug fixes
