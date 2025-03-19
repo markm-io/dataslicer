@@ -171,7 +171,16 @@ jobs:
         with:
           path: executables
 
-      - name: Verify Files Before Upload
+      - name: List Downloaded Files
+        run: ls -R executables
+
+      - name: Move Executables to Root
+        run: |
+          mv executables/dataslicer-windows-latest-v0.2.3/* executables/ 2>/dev/null || true
+          mv executables/dataslicer-ubuntu-latest-v0.2.3/* executables/ 2>/dev/null || true
+          mv executables/dataslicer-macos-latest-v0.2.3/* executables/ 2>/dev/null || true
+
+      - name: Verify Final File Structure
         run: ls -R executables
 
       - name: Upload executables to GitHub release
@@ -179,7 +188,7 @@ jobs:
         with:
           tag_name: ${{ needs.release.outputs.tag }}
           files: |
-            executables/dataslicer-windows-${{ needs.release.outputs.tag }}.exe
-            executables/dataslicer-linux-${{ needs.release.outputs.tag }}
-            executables/dataslicer-macos-${{ needs.release.outputs.tag }}
+            executables/dataslicer-windows-*.exe
+            executables/dataslicer-linux-*
+            executables/dataslicer-macos-*
           token: ${{ secrets.GITHUB_TOKEN }}
