@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.2.1 (2025-03-19)
+
+### Bug fixes
+
+- Update upload_executables job dependencies to include release ([`59fd818`](https://github.com/markm-io/dataslicer/commit/59fd8184e7ace6d69bd95503c25fd0765d6b6cd5))
+- Update indentation size to 2 and enhance executable build process for different os ([`1839387`](https://github.com/markm-io/dataslicer/commit/18393872272e4f914cab1d909375edae173293ab))
+
 ## v0.2.0 (2025-03-19)
 
 ### Features
