@@ -15,7 +15,7 @@ from sphinx.ext import apidoc
 project = "DataSlicer"
 copyright = "2025, Mark Moreno"
 author = "Mark Moreno"
-release = "0.2.7"
+release = "0.2.8"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

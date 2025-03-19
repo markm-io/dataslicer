@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.8 (2025-03-19)
+
+### Bug fixes
+
+- Update .gitignore to ignore all spec files except dataslicer.spec ([`1726ffb`](https://github.com/markm-io/dataslicer/commit/1726ffbcc80e6f6837acbf85741b7db6f6cbd02b))
+
 ## v0.2.7 (2025-03-19)
 
 ### Bug fixes
