@@ -1,6 +1,12 @@
 # Changelog
 
+## v0.4.1 (2025-03-21)
+
 ## v0.4.0 (2025-03-21)
+
+### Bug fixes
+
+- Update sed command for macos icon assignment in ci.yml ([`ec9b0dc`](https://github.com/markm-io/dataslicer/commit/ec9b0dc71a877526699e6564aac45db8099b1c82))
 
 ### Features
 
