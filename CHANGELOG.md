@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.0 (2025-03-21)
+
+### Features
+
+- Enhance file input handling to support directories and ensure consistent columns across multiple files ([`ff84ed7`](https://github.com/markm-io/dataslicer/commit/ff84ed7dbcd7f03f9621733e9c4d6ed15b235efa))
+
 ## v0.5.0 (2025-03-21)
 
 ### Features
