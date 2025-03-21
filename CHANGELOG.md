@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.0 (2025-03-21)
+
+### Features
+
+- Add icon to executable ([`fb2be92`](https://github.com/markm-io/dataslicer/commit/fb2be925cb4f0b8723c335ff49a4f5934be5d655))
+
 ## v0.3.0 (2025-03-19)
 
 ### Features
