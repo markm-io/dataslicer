@@ -72,7 +72,7 @@ def choose_columns(columns: list[str]) -> list[str]:
 
 def choose_filename_column(columns: list[str]) -> str:
     """
-    Let the user select a column to use for the filename.
+    Let the user select a column to use for the filename or enter a custom string.
     """
     table = Table(title="Available columns for filename", show_lines=True)
     table.add_column("#", justify="right", style="bold")
@@ -80,14 +80,20 @@ def choose_filename_column(columns: list[str]) -> str:
 
     for i, col in enumerate(columns, start=1):
         table.add_row(str(i), col)
+    table.add_row("0", "[bold yellow]Enter a custom string[/]")
 
     console.print(table)
 
     while True:
-        choice: str = Prompt.ask("[bold yellow]Select a column for the filename by number[/]").strip()
+        choice: str = Prompt.ask(
+            "[bold yellow]Select a column for the filename by number or enter 0 for a custom string[/]"
+        ).strip()
         try:
             num: int = int(choice)
-            if num < 1 or num > len(columns):
+            if num == 0:
+                custom_string = Prompt.ask("[bold yellow]Enter the custom string for the filename[/]").strip()
+                return f"custom:{custom_string}"
+            elif num < 1 or num > len(columns):
                 console.print("[bold red]Invalid selection. Try again.[/]")
                 continue
             return columns[num - 1]
@@ -155,8 +161,10 @@ def save_group(
         subfolder_path = sanitize_filepath(os.path.join(subfolder_path, sanitize_filename(str(key))))
     os.makedirs(subfolder_path, exist_ok=True)
 
-    # Use the filename column value if it exists in the dataframe
-    if filename_column in df.columns:
+    # Use the custom string if provided, otherwise use the filename column value
+    if filename_column.startswith("custom:"):
+        raw_filename = sanitize_filename(filename_column[len("custom:") :])
+    elif filename_column in df.columns:
         # Use the first value in the group for the filename column
         filename_value = str(df[filename_column].iloc[0])
         raw_filename = sanitize_filename(filename_value)
