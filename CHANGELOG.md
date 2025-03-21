@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.5.0 (2025-03-21)
+
+### Features
+
+- Allow custom string input for filename selection in main.py ([`ee6eb3b`](https://github.com/markm-io/dataslicer/commit/ee6eb3b1415e8b44e0fa29cb4f7afa5249046fb1))
+
 ## v0.4.1 (2025-03-21)
 
 ## v0.4.0 (2025-03-21)
