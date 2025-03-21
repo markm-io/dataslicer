@@ -38,6 +38,53 @@ def temp_excel(tmp_path):
     return str(temp_file)
 
 
+@pytest.fixture
+def temp_folder_with_files(tmp_path):
+    """Creates a temporary folder with multiple CSV and Excel files having the same columns."""
+    folder = tmp_path / "test_folder"
+    folder.mkdir()
+
+    # Create first CSV file
+    csv1 = folder / "file1.csv"
+    csv1.write_text("""Name,Department,Salary
+Alice,HR,50000
+Bob,IT,60000""")
+
+    # Create second CSV file
+    csv2 = folder / "file2.csv"
+    csv2.write_text("""Name,Department,Salary
+Charlie,HR,55000
+David,IT,70000""")
+
+    # Create Excel file
+    excel1 = folder / "file1.xlsx"
+    df = pd.DataFrame({"Name": ["Eva", "Frank"], "Department": ["Marketing", "Finance"], "Salary": [65000, 75000]})
+    df.to_excel(excel1, index=False)
+
+    return str(folder)
+
+
+@pytest.fixture
+def temp_folder_with_inconsistent_files(tmp_path):
+    """Creates a temporary folder with files having inconsistent columns."""
+    folder = tmp_path / "inconsistent_folder"
+    folder.mkdir()
+
+    # Create first file with standard columns
+    csv1 = folder / "file1.csv"
+    csv1.write_text("""Name,Department,Salary
+Alice,HR,50000
+Bob,IT,60000""")
+
+    # Create second file with different columns
+    csv2 = folder / "file2.csv"
+    csv2.write_text("""Name,Role,Income
+Charlie,Manager,55000
+David,Developer,70000""")
+
+    return str(folder)
+
+
 def test_main_csv_workflow(temp_csv, tmp_path, monkeypatch):
     """Test the complete workflow of main() with CSV input and output."""
     export_folder = str(tmp_path / "exports")
@@ -175,3 +222,56 @@ def test_main_with_multiple_group_columns(temp_csv, tmp_path, monkeypatch):
 
     for path in paths:
         assert os.path.exists(path), f"File was not created at {path}"
+
+
+def test_main_folder_with_consistent_files(temp_folder_with_files, tmp_path, monkeypatch):
+    """Test the workflow with a folder containing multiple files with consistent columns."""
+    export_folder = str(tmp_path / "exports_folder")
+    os.makedirs(export_folder, exist_ok=True)
+
+    # Mock the inputs
+    with patch(
+        "builtins.input",
+        side_effect=[
+            temp_folder_with_files,  # folder path
+            "2",  # select Department column
+            "",  # finish column selection
+            "2",  # select Department for filename
+            export_folder,  # export folder
+            "2",  # choose CSV format
+        ],
+    ):
+        # Run the main function
+        main()
+
+    # Check that the expected files were created with combined data
+    hr_file = os.path.join(export_folder, "HR", "HR.csv")
+    it_file = os.path.join(export_folder, "IT", "IT.csv")
+    marketing_file = os.path.join(export_folder, "Marketing", "Marketing.csv")
+    finance_file = os.path.join(export_folder, "Finance", "Finance.csv")
+
+    assert os.path.exists(hr_file), f"HR file was not created at {hr_file}"
+    assert os.path.exists(it_file), f"IT file was not created at {it_file}"
+    assert os.path.exists(marketing_file), f"Marketing file was not created at {marketing_file}"
+    assert os.path.exists(finance_file), f"Finance file was not created at {finance_file}"
+
+    # Verify content
+    hr_df = pd.read_csv(hr_file)
+    assert len(hr_df) == 2
+    assert "Alice" in list(hr_df["Name"]) and "Charlie" in list(hr_df["Name"])
+
+    it_df = pd.read_csv(it_file)
+    assert len(it_df) == 2
+    assert "Bob" in list(it_df["Name"]) and "David" in list(it_df["Name"])
+
+
+def test_main_folder_with_inconsistent_files(temp_folder_with_inconsistent_files, monkeypatch):
+    """Test that an error is raised when processing a folder with inconsistent columns."""
+    # Mock the inputs
+    with patch("builtins.input", return_value=temp_folder_with_inconsistent_files):
+        # The function should raise an error because of inconsistent columns
+        with pytest.raises(Exception) as excinfo:
+            main()
+
+        # Verify the error message contains information about column inconsistency
+        assert "different columns" in str(excinfo.value).lower() or "column" in str(excinfo.value).lower()

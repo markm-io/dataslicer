@@ -11,25 +11,80 @@ console = Console()
 
 
 def get_file_path() -> str:
-    """Ask the user for the file path until a valid file is provided."""
+    """Ask the user for the file path, which can be a file or directory."""
     while True:
-        file_path: str = Prompt.ask("[bold cyan]Enter the path to your Excel or CSV file[/]").strip()
-        if os.path.isfile(file_path):
+        file_path: str = Prompt.ask(
+            "[bold cyan]Enter the path to your Excel/CSV file or folder containing multiple files[/]"
+        ).strip()
+        if os.path.isfile(file_path) or os.path.isdir(file_path):
             return file_path
         else:
-            console.print("[bold red]File does not exist. Please try again.[/]")
+            console.print("[bold red]Path does not exist. Please try again.[/]")
 
 
 def read_file(file_path: str) -> pd.DataFrame:
-    """Read the file as a CSV or the first sheet of an Excel file."""
-    _, ext = os.path.splitext(file_path)
-    if ext.lower() == ".csv":
-        df = pd.read_csv(file_path)
-    elif ext.lower() in [".xls", ".xlsx"]:
-        df = pd.read_excel(file_path, sheet_name=0)
+    """
+    Read a single file or all Excel and CSV files in a directory.
+    Ensures all files in a directory have consistent columns.
+    """
+    if os.path.isfile(file_path):
+        # Handle single file
+        _, ext = os.path.splitext(file_path)
+        if ext.lower() == ".csv":
+            df = pd.read_csv(file_path)
+        elif ext.lower() in [".xls", ".xlsx"]:
+            df = pd.read_excel(file_path, sheet_name=0)
+        else:
+            raise ValueError("[bold red]Unsupported file type. Please provide a CSV or Excel file.[/]")
+        return df
+
+    elif os.path.isdir(file_path):
+        # Handle directory
+        console.print(f"[bold cyan]Reading files from directory: {file_path}[/]")
+        all_dfs = []
+        columns = None
+
+        # Get list of CSV and Excel files
+        files = [f for f in os.listdir(file_path) if f.lower().endswith((".csv", ".xls", ".xlsx"))]
+
+        if not files:
+            raise ValueError("[bold red]No CSV or Excel files found in the directory.[/]")
+
+        for file in files:
+            full_path = os.path.join(file_path, file)
+            _, ext = os.path.splitext(file)
+
+            try:
+                if ext.lower() == ".csv":
+                    df = pd.read_csv(full_path)
+                else:  # Excel files
+                    df = pd.read_excel(full_path, sheet_name=0)
+
+                # Check if columns are consistent
+                if columns is None:
+                    columns = set(df.columns)
+                elif set(df.columns) != columns:
+                    raise ValueError(
+                        f"[bold red]File '{file}' has different columns than other files. "
+                        f"All files must have the same columns.[/]"
+                    )
+
+                all_dfs.append(df)
+                console.print(f"[green]Successfully read: {file}[/]")
+            except Exception as e:
+                raise ValueError(f"[bold red]Error reading file '{file}': {e!s}[/]") from e
+
+        if not all_dfs:
+            raise ValueError("[bold red]No valid files could be read from the directory.[/]")
+
+        # Combine all dataframes
+        combined_df = pd.concat(all_dfs, ignore_index=True)
+        console.print(f"[bold green]Successfully combined {len(all_dfs)} files with {len(combined_df)} total rows.[/]")
+
+        return combined_df
+
     else:
-        raise ValueError("[bold red]Unsupported file type. Please provide a CSV or Excel file.[/]")
-    return df
+        raise ValueError("[bold red]The path is neither a file nor a directory.[/]")
 
 
 def choose_columns(columns: list[str]) -> list[str]:
