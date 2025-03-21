@@ -1,129 +1,177 @@
 import os
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
 
-from dataslicer.main import (
-    choose_columns,
-    choose_export_format,
-    choose_filename_column,
-    get_export_folder,
-    get_file_path,
-    read_file,
-    save_group,
-)
+# Add the project root directory to the Python path to fix import issues
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from dataslicer.main import main
 
-TEST_CSV_CONTENT = """Name,Department,Salary
+
+@pytest.fixture
+def temp_csv(tmp_path):
+    """Creates a temporary CSV file with test data."""
+    temp_file = tmp_path / "test_file.csv"
+    test_content = """Name,Department,Salary
 Alice,HR,50000
 Bob,IT,60000
 Charlie,HR,55000
 David,IT,70000
 """
-
-TEST_DF = pd.DataFrame(
-    {
-        "Name": ["Alice", "Bob", "Charlie", "David"],
-        "Department": ["HR", "IT", "HR", "IT"],
-        "Salary": [50000, 60000, 55000, 70000],
-    }
-)
-
-
-@pytest.fixture
-def temp_csv(tmp_path):
-    """Creates a temporary CSV file."""
-    temp_file = tmp_path / "test_file.csv"
-    temp_file.write_text(TEST_CSV_CONTENT)
+    temp_file.write_text(test_content)
     return str(temp_file)
 
 
-def test_get_file_path(temp_csv, monkeypatch):
-    """Test get_file_path() with a valid file."""
-    monkeypatch.setattr("builtins.input", lambda *args: temp_csv)
-    assert get_file_path() == temp_csv
-
-
-def test_read_file_csv(temp_csv):
-    """Test reading a CSV file."""
-    df = read_file(temp_csv)
-    assert isinstance(df, pd.DataFrame)
-    assert list(df.columns) == ["Name", "Department", "Salary"]
-    assert len(df) == 4  # Four rows in test data
-
-
-def test_choose_columns(monkeypatch):
-    """Test column selection function."""
-    inputs = iter(["1", "2", ""])  # Select columns 1 and 2, then press Enter
-    monkeypatch.setattr("builtins.input", lambda *args: next(inputs))
-
-    selected_columns = choose_columns(["Name", "Department", "Salary"])
-    assert selected_columns == ["Name", "Salary"]
-
-
-def test_get_export_folder(monkeypatch, tmp_path):
-    """Test getting an export folder."""
-    temp_folder = str(tmp_path / "export")
-    monkeypatch.setattr("builtins.input", lambda *args: temp_folder)
-    assert get_export_folder() == temp_folder
-
-
-def test_choose_filename_column(monkeypatch):
-    """Test filename column selection function."""
-    monkeypatch.setattr("builtins.input", lambda *args: "2")  # Select column 2
-
-    filename_column = choose_filename_column(["Name", "Department", "Salary"])
-    assert filename_column == "Department"
-
-
-def test_choose_export_format(monkeypatch):
-    """Test export format selection."""
-    monkeypatch.setattr("builtins.input", lambda *args: "1")  # User selects Excel
-    assert choose_export_format() == "excel"
-
-    monkeypatch.setattr("builtins.input", lambda *args: "2")  # User selects CSV
-    assert choose_export_format() == "csv"
-
-
-def test_save_group(tmp_path):
-    """Test that the grouped data is saved correctly."""
-    export_folder = tmp_path / "exports"
-    os.makedirs(export_folder, exist_ok=True)
-
-    save_group(
-        df=TEST_DF,
-        group_keys=("HR",),
-        selected_columns=["Department"],
-        filename_column="Department",
-        export_folder=str(export_folder),
-        export_format="csv",
-    )
-
-    expected_file = export_folder / "HR" / "HR.csv"
-    assert expected_file.exists(), f"Expected file {expected_file} does not exist."
-
-
 @pytest.fixture
-def mock_grouped_data():
-    """Mock grouped data for testing."""
-    grouped = TEST_DF.groupby("Department")
-    return grouped
+def temp_excel(tmp_path):
+    """Creates a temporary Excel file with test data."""
+    temp_file = tmp_path / "test_file.xlsx"
+    df = pd.DataFrame(
+        {
+            "Name": ["Alice", "Bob", "Charlie", "David"],
+            "Department": ["HR", "IT", "HR", "IT"],
+            "Salary": [50000, 60000, 55000, 70000],
+        }
+    )
+    df.to_excel(temp_file, index=False)
+    return str(temp_file)
 
 
-def test_grouping_and_saving(mock_grouped_data, tmp_path):
-    """Test full flow of grouping and saving data."""
-    export_folder = tmp_path / "exports"
+def test_main_csv_workflow(temp_csv, tmp_path, monkeypatch):
+    """Test the complete workflow of main() with CSV input and output."""
+    export_folder = str(tmp_path / "exports")
     os.makedirs(export_folder, exist_ok=True)
 
-    for group_keys, group_df in mock_grouped_data:
-        save_group(
-            df=group_df,
-            group_keys=group_keys,
-            selected_columns=["Department"],
-            filename_column="Department",
-            export_folder=str(export_folder),
-            export_format="csv",
-        )
+    # Mock the inputs using patch for input function
+    with patch(
+        "builtins.input",
+        side_effect=[
+            temp_csv,  # file path
+            "2",  # select Department column
+            "",  # finish column selection
+            "2",  # select Department for filename
+            export_folder,  # export folder
+            "2",  # choose CSV format
+        ],
+    ):
+        # Run the main function
+        main()
 
-    for department in ["HR", "IT"]:
-        expected_file = export_folder / department / f"{department}.csv"
-        assert expected_file.exists(), f"Expected file {expected_file} does not exist."
+    # Check that the expected files were created
+    hr_file = os.path.join(export_folder, "HR", "HR.csv")
+    it_file = os.path.join(export_folder, "IT", "IT.csv")
+
+    assert os.path.exists(hr_file), f"HR file was not created at {hr_file}"
+    assert os.path.exists(it_file), f"IT file was not created at {it_file}"
+
+    # Verify content of HR file
+    hr_df = pd.read_csv(hr_file)
+    assert len(hr_df) == 2
+    assert "Alice" in list(hr_df["Name"]) and "Charlie" in list(hr_df["Name"])
+
+    # Verify content of IT file
+    it_df = pd.read_csv(it_file)
+    assert len(it_df) == 2
+    assert "Bob" in list(it_df["Name"]) and "David" in list(it_df["Name"])
+
+
+def test_main_excel_workflow(temp_excel, tmp_path, monkeypatch):
+    """Test the complete workflow of main() with Excel input and output."""
+    export_folder = str(tmp_path / "exports_excel")
+    os.makedirs(export_folder, exist_ok=True)
+
+    # Mock the inputs using patch for input function
+    with patch(
+        "builtins.input",
+        side_effect=[
+            temp_excel,  # file path
+            "2",  # select Department column
+            "",  # finish column selection
+            "2",  # select Department for filename
+            export_folder,  # export folder
+            "1",  # choose Excel format
+        ],
+    ):
+        # Run the main function
+        main()
+
+    # Check that the expected files were created
+    hr_file = os.path.join(export_folder, "HR", "HR.xlsx")
+    it_file = os.path.join(export_folder, "IT", "IT.xlsx")
+
+    assert os.path.exists(hr_file), f"HR file was not created at {hr_file}"
+    assert os.path.exists(it_file), f"IT file was not created at {it_file}"
+
+    # Verify content of HR file
+    hr_df = pd.read_excel(hr_file)
+    assert len(hr_df) == 2
+    assert "Alice" in list(hr_df["Name"]) and "Charlie" in list(hr_df["Name"])
+
+    # Verify content of IT file
+    it_df = pd.read_excel(it_file)
+    assert len(it_df) == 2
+    assert "Bob" in list(it_df["Name"]) and "David" in list(it_df["Name"])
+
+
+def test_main_with_custom_filename(temp_csv, tmp_path, monkeypatch):
+    """Test the workflow with a custom filename option."""
+    export_folder = str(tmp_path / "exports_custom")
+    os.makedirs(export_folder, exist_ok=True)
+
+    # Mock the inputs using patch for input function
+    with patch(
+        "builtins.input",
+        side_effect=[
+            temp_csv,  # file path
+            "2",  # select Department column
+            "",  # finish column selection
+            "0",  # select custom filename
+            "test_export",  # custom filename
+            export_folder,  # export folder
+            "2",  # choose CSV format
+        ],
+    ):
+        # Run the main function
+        main()
+
+    # Check that the expected files were created
+    hr_file = os.path.join(export_folder, "HR", "test_export.csv")
+    it_file = os.path.join(export_folder, "IT", "test_export.csv")
+
+    assert os.path.exists(hr_file), f"HR file was not created at {hr_file}"
+    assert os.path.exists(it_file), f"IT file was not created at {it_file}"
+
+
+def test_main_with_multiple_group_columns(temp_csv, tmp_path, monkeypatch):
+    """Test grouping by multiple columns."""
+    export_folder = str(tmp_path / "exports_multi")
+    os.makedirs(export_folder, exist_ok=True)
+
+    # Mock the inputs using patch for input function
+    with patch(
+        "builtins.input",
+        side_effect=[
+            temp_csv,  # file path
+            "1",  # select Name column (index 1 initially)
+            "1",  # select Department column (now index 1 after Name was removed)
+            "",  # finish column selection
+            "3",  # select Salary for filename (now index 1 in remaining columns)
+            export_folder,  # export folder
+            "2",  # choose CSV format
+        ],
+    ):
+        # Run the main function
+        main()
+
+    # Check that the expected nested folder structure was created
+    # With Name then Department grouping, and using Salary for filename
+    paths = [
+        os.path.join(export_folder, "Alice", "HR", "50000.csv"),
+        os.path.join(export_folder, "Bob", "IT", "60000.csv"),
+        os.path.join(export_folder, "Charlie", "HR", "55000.csv"),
+        os.path.join(export_folder, "David", "IT", "70000.csv"),
+    ]
+
+    for path in paths:
+        assert os.path.exists(path), f"File was not created at {path}"
