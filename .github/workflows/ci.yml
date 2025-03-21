@@ -144,7 +144,7 @@ jobs:
           elif [ "$RUNNER_OS" == "Linux" ]; then
             sed -i 's|icon=None|icon="assets/icon.png"|g' dataslicer.spec
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            sed -i 's|icon=None|icon="assets/icon.icns"|g' dataslicer.spec
+            sed -i '' 's|icon=None|icon="assets/icon.icns"|g' dataslicer.spec
           fi
         shell: bash
 
