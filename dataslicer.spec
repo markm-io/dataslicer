@@ -41,5 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='assets/icon.ico' if sys.platform == 'win32' else 'assets/icon.icns' if sys.platform == 'darwin' else None,
+    icon=None,
 )
