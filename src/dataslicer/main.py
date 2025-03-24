@@ -16,6 +16,13 @@ def get_file_path() -> str:
         file_path: str = Prompt.ask(
             "[bold cyan]Enter the path to your Excel/CSV file or folder containing multiple files[/]"
         ).strip()
+
+        # Strip quotes if present (handles both single and double quotes)
+        if (file_path.startswith('"') and file_path.endswith('"')) or (
+            file_path.startswith("'") and file_path.endswith("'")
+        ):
+            file_path = file_path[1:-1]
+
         if os.path.isfile(file_path) or os.path.isdir(file_path):
             return file_path
         else:
@@ -163,6 +170,11 @@ def get_export_folder() -> str:
     """
     while True:
         folder: str = Prompt.ask("[bold cyan]Enter the path to the export folder[/]").strip()
+
+        # Strip quotes if present
+        if (folder.startswith('"') and folder.endswith('"')) or (folder.startswith("'") and folder.endswith("'")):
+            folder = folder[1:-1]
+
         if folder:
             if not os.path.exists(folder):
                 try:
