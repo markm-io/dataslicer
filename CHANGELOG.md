@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.1 (2025-03-24)
+
+### Bug fixes
+
+- Strip quotes from file and folder paths in main.py input handling ([`4cbb058`](https://github.com/markm-io/dataslicer/commit/4cbb05861828195070a1b1d33673eee6298f4ac2))
+
 ## v0.6.0 (2025-03-21)
 
 ### Features
