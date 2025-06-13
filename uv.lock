@@ -197,7 +197,7 @@ toml = [
 
 [[package]]
 name = "data-slice"
-version = "0.6.1"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "openpyxl" },
