@@ -193,7 +193,7 @@ jobs:
         shell: bash
 
       - name: Upload Executable
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: dataslicer-${{ matrix.os }}-${{ needs.release.outputs.tag }}
           path: dist/*
@@ -208,7 +208,7 @@ jobs:
       contents: write
     steps:
       - name: Download all executables
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: executables
 
